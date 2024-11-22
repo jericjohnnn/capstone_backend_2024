@@ -1,0 +1,23 @@
+erDiagram
+    USER_TYPE ||--o{ USER : has
+    USER ||--o| STUDENT : has
+    USER ||--o| TUTOR : has
+    USER ||--o{ NOTIFICATION : has
+    USER ||--o{ REPORT : "complains as"
+    USER ||--o{ REPORT : "reported as"
+
+    ADMIN_ROLE ||--o{ ADMIN : has
+
+    TUTOR ||--o{ BOOKING : has
+    TUTOR ||--o{ RATING : receives
+    TUTOR ||--o{ TUTOR_SCHOOL : has
+    TUTOR ||--o{ TUTOR_CERTIFICATE : has
+    TUTOR ||--o| TUTOR_WORK_DAY : has
+    TUTOR ||--o{ TUTOR_SUBJECT : has
+    TUTOR_SUBJECT }o--|| SUBJECT : references
+
+    STUDENT ||--o{ BOOKING : makes
+    STUDENT ||--o{ RATING : gives
+
+    BOOKING ||--o{ BOOKING_MESSAGE : has
+    BOOKING_MESSAGE ||--o{ BOOKING_DATE : has

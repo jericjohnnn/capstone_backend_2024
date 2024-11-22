@@ -1,0 +1,177 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classAttributeFontSize 11
+
+class User {
+  +id: int
+  +email: string
+  +password: string
+  +user_type_id: int
+  +email_verified_at: timestamp
+  +remember_token: string
+  +userType(): UserType
+  +tutor(): Tutor
+  +student(): Student
+  +complainantReports(): Report[]
+  +offenderReports(): Report[]
+  +notifications(): Notification[]
+}
+
+class Tutor {
+  +id: int
+  +user_id: int
+  +first_name: string
+  +last_name: string
+  +address: string
+  +birthdate: date
+  +gender: enum
+  +contact_number: string
+  +profile_image: string
+  +tutor_rate: int
+  +biography: text
+  +school_id_number: string
+  +course: enum
+  +year: enum
+  +contacted_status: boolean
+  +offense_status: enum
+  +approval_status: enum
+  +user(): User
+  +workDays(): TutorWorkDay
+  +schools(): TutorSchool[]
+  +certificates(): TutorCertificate[]
+  +subjects(): Subject[]
+  +bookings(): Booking[]
+  +ratings(): Rating[]
+}
+
+class Student {
+  +id: int
+  +user_id: int
+  +first_name: string
+  +last_name: string
+  +address: string
+  +birthdate: date
+  +contact_number: string
+  +profile_image: string
+  +school_id_number: string
+  +grade_year: string
+  +offense_status: enum
+  +user(): User
+  +bookings(): Booking[]
+  +ratings(): Rating[]
+  +complaints(): Report[]
+  +offenses(): Report[]
+}
+
+class Booking {
+  +id: int
+  +tutor_id: int
+  +student_id: int
+  +learning_mode: enum
+  +subject: string
+  +location: string
+  +online_meeting_platform: string
+  +contact_number: string
+  +status: enum
+  +tutor(): Tutor
+  +student(): Student
+  +messages(): BookingMessage[]
+}
+
+class BookingMessage {
+  +id: int
+  +booking_id: int
+  +title: string
+  +message: text
+  +booking(): Booking
+  +dates(): BookingDate[]
+}
+
+class BookingDate {
+  +id: int
+  +booking_message_id: int
+  +start_time: datetime
+  +end_time: datetime
+  +bookingMessage(): BookingMessage
+}
+
+class Rating {
+  +id: int
+  +tutor_id: int
+  +student_id: int
+  +comment: text
+  +rate: int
+  +tutor(): Tutor
+  +student(): Student
+}
+
+class Report {
+  +id: int
+  +complainant_id: int
+  +offender_id: int
+  +title: string
+  +message: text
+  +status: enum
+  +complainant(): User
+  +offender(): User
+}
+
+class Subject {
+  +id: int
+  +name: string
+  +abbreviation: string
+  +tutors(): Tutor[]
+}
+
+class TutorWorkDay {
+  +id: int
+  +tutor_id: int
+  +monday: boolean
+  +tuesday: boolean
+  +wednesday: boolean
+  +thursday: boolean
+  +friday: boolean
+  +saturday: boolean
+  +sunday: boolean
+  +start_time: time
+  +end_time: time
+  +tutor(): Tutor
+}
+
+class TutorSchool {
+  +id: int
+  +tutor_id: int
+  +image: string
+  +name: string
+  +course: string
+  +start_date: date
+  +end_date: date
+  +tutor(): Tutor
+}
+
+class TutorCertificate {
+  +id: int
+  +tutor_id: int
+  +image: string
+  +title: string
+  +issuer: string
+  +date_issued: date
+  +tutor(): Tutor
+}
+
+' Relationships
+User "1" -- "0..1" Tutor
+User "1" -- "0..1" Student
+User "1" -- "*" Report
+Tutor "1" -- "1" TutorWorkDay
+Tutor "1" -- "*" TutorSchool
+Tutor "1" -- "*" TutorCertificate
+Tutor "1" -- "*" Booking
+Tutor "*" -- "*" Subject
+Student "1" -- "*" Booking
+Booking "1" -- "*" BookingMessage
+BookingMessage "1" -- "*" BookingDate
+Tutor "1" -- "*" Rating
+Student "1" -- "*" Rating
+@enduml
