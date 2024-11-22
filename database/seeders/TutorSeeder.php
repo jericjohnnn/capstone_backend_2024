@@ -73,6 +73,8 @@ class TutorSeeder extends Seeder
             'end_date' => '2020-05-30'
         ]);
 
+        $tutorAccount->workDays()->create([]);
+
         $subjectIds = Subject::inRandomOrder()->take(rand(1, 3))->pluck('id');
         $tutorAccount->subjects()->attach($subjectIds);
 
