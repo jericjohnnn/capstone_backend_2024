@@ -22,10 +22,10 @@ class DatabaseSeeder extends Seeder
                 AdminAccountSeeder::class,
                 StudentSeeder::class,
                 TutorSeeder::class,
-                RatingSeeder::class,
-                ReportSeeder::class,
-                NotificationSeeder::class,
-                BookingSeeder::class,
+                // RatingSeeder::class,
+                // ReportSeeder::class,
+                // NotificationSeeder::class,
+                // BookingSeeder::class,
             ]
         );
     }

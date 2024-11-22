@@ -23,17 +23,17 @@ class StudentSeeder extends Seeder
                 'password' => Hash::make('password123'), // Predefined password
                 'remember_token' => null,
             ])->id,
-            'first_name' => 'student',
-            'last_name' => 'account',
-            'address' => '123 Main St, City, Country',
-            'birthdate' => '2000-01-01',
+            'first_name' => 'Student',
+            'last_name' => 'Account',
+            'address' => 'Buanoy, Balamban, Cebu',
+            'birthdate' => '2009-01-01',
             'contact_number' => '09123456789',
-            'school_id_number' => '20212345',
+            'school_id_number' => '20212346',
             'grade_year' => '10',
             'offense_status' => 'Unflagged',
         ]);
 
         // this is an email verified seeder account. for unverified, you have to remove email_verified_at in factory
-        Student::factory(50)->create();
+        // Student::factory(50)->create();
     }
 }

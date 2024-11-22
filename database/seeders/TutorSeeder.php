@@ -27,11 +27,11 @@ class TutorSeeder extends Seeder
                 'password' => Hash::make('password123'), // Predefined password
                 'remember_token' => null,
             ])->id,
-            'first_name' => 'tutor',
-            'last_name' => 'account',
-            'address' => '123 Main St, City, Country',
-            'birthdate' => '2000-01-01',
-            'gender' => 'Female',
+            'first_name' => 'Tutor',
+            'last_name' => 'Account',
+            'address' => 'Abucayan, Balamban, Cebu',
+            'birthdate' => '2001-01-01',
+            'gender' => 'Male',
             'contact_number' => '09123456789',
             'tutor_rate' => 300,
             'biography' => "I'm a dedicated software engineer with a passion for teaching. I've been tutoring students of all ages in programming and computer science for 3 years. I believe in creating a supportive and engaging learning environment where students can thrive. Whether you're a beginner or looking to advance your skills, I'm here to help you achieve your goals. Let's connect and explore the exciting world of software development together!",
@@ -39,20 +39,38 @@ class TutorSeeder extends Seeder
             'course' => 'BSIT',
             'year' => "4",
             'contacted_status' => 1,
-            'offense_status' => 'Warned',
+            'offense_status' => 'Unflagged',
             'approval_status' => 'Accepted'
         ]);
 
-        TutorCertificate::factory(2)->create([
-            'tutor_id' => $tutorAccount->id
+        TutorCertificate::create([
+            'tutor_id' => $tutorAccount->id,
+            'title' => 'TESDA National Certificate II',
+            'issuer' => 'Technical Education and Skills Development Authority',
+            'date_issued' => '2023-01-15'
         ]);
 
-        TutorSchool::factory(2)->create([
-            'tutor_id' => $tutorAccount->id
+        TutorCertificate::create([
+            'tutor_id' => $tutorAccount->id,
+            'title' => 'Web Development Certification',
+            'issuer' => 'freeCodeCamp',
+            'date_issued' => '2023-06-20'
         ]);
 
-        TutorWorkDay::factory()->create([
-            'tutor_id' => $tutorAccount->id
+        TutorSchool::create([
+            'tutor_id' => $tutorAccount->id,
+            'name' => 'University of San Carlos',
+            'course' => 'Bachelor of Science in Information Technology',
+            'start_date' => '2020-06-01',
+            'end_date' => '2024-05-30'
+        ]);
+
+        TutorSchool::create([
+            'tutor_id' => $tutorAccount->id,
+            'name' => 'Cebu Institute of Technology - University',
+            'course' => 'Bachelor of Science in Computer Science',
+            'start_date' => '2016-06-01',
+            'end_date' => '2020-05-30'
         ]);
 
         $subjectIds = Subject::inRandomOrder()->take(rand(1, 3))->pluck('id');
@@ -60,25 +78,25 @@ class TutorSeeder extends Seeder
 
 
         // this is an email verified seeder account. for unverified, you have to remove email_verified_at in factory
-        Tutor::factory(50)->create()->each(function ($tutor) {
-            // Create 2 certificates for each tutor
-            TutorCertificate::factory(2)->create([
-                'tutor_id' => $tutor->id
-            ]);
+        // Tutor::factory(50)->create()->each(function ($tutor) {
+        //     // Create 2 certificates for each tutor
+        //     TutorCertificate::factory(2)->create([
+        //         'tutor_id' => $tutor->id
+        //     ]);
 
-            // Create 2 schools for each tutor
-            TutorSchool::factory(2)->create([
-                'tutor_id' => $tutor->id
-            ]);
+        //     // Create 2 schools for each tutor
+        //     TutorSchool::factory(2)->create([
+        //         'tutor_id' => $tutor->id
+        //     ]);
 
-            // Create work days for each tutor
-            TutorWorkDay::factory()->create([
-                'tutor_id' => $tutor->id
-            ]);
+        //     // Create work days for each tutor
+        //     TutorWorkDay::factory()->create([
+        //         'tutor_id' => $tutor->id
+        //     ]);
 
-            // Assign between 1 to 3 random subjects to each tutor
-            $subjectIds = Subject::inRandomOrder()->take(rand(1, 3))->pluck('id');
-            $tutor->subjects()->attach($subjectIds);
-        });
+        //     // Assign between 1 to 3 random subjects to each tutor
+        //     $subjectIds = Subject::inRandomOrder()->take(rand(1, 3))->pluck('id');
+        //     $tutor->subjects()->attach($subjectIds);
+        // });
     }
 }
