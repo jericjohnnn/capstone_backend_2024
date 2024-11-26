@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Tutor extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     protected $fillable = [
         'user_id',
@@ -37,6 +38,15 @@ class Tutor extends Model
         'offense_status' => 'string',
         'approval_status' => 'string'
     ];
+
+      // Laravel Scout searchable method
+      public function toSearchableArray()
+      {
+          return [
+              'first_name' => $this->first_name,
+              'last_name' => $this->last_name,
+          ];
+      }
 
     //relationships
     public function user()

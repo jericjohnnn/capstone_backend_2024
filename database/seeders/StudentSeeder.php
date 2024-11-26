@@ -34,6 +34,6 @@ class StudentSeeder extends Seeder
         ]);
 
         // this is an email verified seeder account. for unverified, you have to remove email_verified_at in factory
-        // Student::factory(50)->create();
+        Student::factory(50)->create();
     }
 }

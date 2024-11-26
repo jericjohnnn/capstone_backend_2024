@@ -10,6 +10,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/tutors', [TutorController::class, 'showTutors']);
     Route::get('/tutors-mobile', [TutorController::class, 'showTutorsMobile']);
     Route::get('/tutor-info', [TutorController::class, 'getTutorDetails']);
+    Route::get('/search-tutor', [TutorController::class, 'searchTutors']);
     //
     Route::get('/student-requests', [TutorController::class, 'showStudentRequests']);
     Route::get('/book-request-details/{book_id}', [TutorController::class, 'showBookRequestDetails']);

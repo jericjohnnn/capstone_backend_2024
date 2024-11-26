@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('tutors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');;
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('address')->nullable();
@@ -32,6 +31,14 @@ return new class extends Migration
             $table->enum('approval_status', ['Pending', 'Accepted', 'Rejected'])
                 ->default('Pending');
             $table->timestamps();
+
+            // Indexes
+            $table->unique(['user_id']);
+            $table->index(['first_name', 'last_name']);
+            $table->fullText(['first_name', 'last_name']);
+            $table->index('offense_status');
+            $table->index('approval_status');
+            $table->index(['offense_status', 'approval_status']);
         });
     }
 
