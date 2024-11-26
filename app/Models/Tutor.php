@@ -42,12 +42,9 @@ class Tutor extends Model
       // Laravel Scout searchable method
       public function toSearchableArray()
       {
-          $this->load('subjects');
-  
           return [
               'first_name' => $this->first_name,
               'last_name' => $this->last_name,
-              'subjects' => $this->subjects->pluck('name')->toArray(), 
           ];
       }
 

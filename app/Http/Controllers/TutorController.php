@@ -9,6 +9,7 @@ use App\Http\Requests\Tutor\EditPersonalDetailsRequest;
 use App\Http\Requests\Tutor\SchoolsRequest;
 use App\Http\Requests\Tutor\EditSubjectsRequest;
 use App\Http\Requests\Tutor\EditWorkDaysRequest;
+use App\Http\Requests\Tutor\SearchTutorRequest;
 use App\Models\Booking;
 use App\Models\BookingDate;
 use App\Models\BookingMessage;
@@ -370,6 +371,33 @@ class TutorController extends Controller
         ]);
     }
 
+    public function searchTutors(SearchTutorRequest $request)
+    {
+        $validatedData = $request->validated();
+
+        //from url query
+        $tutor = $validatedData['tutor'] ?? '';
+        $subject = $validatedData['subject'] ?? '';
+
+        $searchedSubject = Subject::search($subject)->get();
+        $subjectNames = $searchedSubject->pluck('name')->toArray();
+
+        $tutorIds = Tutor::whereHas('subjects', function ($query) use ($subjectNames) {
+            $query->whereIn('subjects.name', $subjectNames); 
+        })->pluck('id')->toArray(); 
+
+        $tutors = Tutor::search($tutor)
+            ->whereIn('id', $tutorIds)
+            ->whereIn('approval_status', ['Accepted'])
+            ->whereNotIn('offense_status', ['Banned'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(3);
+            
+        $tutors->load('subjects');
+
+        return response()->json($tutors);
+    }
+
     public function showBookRequestDetails($book_id)
     {
         $bookDetails = Booking::where('id', $book_id)
@@ -427,9 +455,9 @@ class TutorController extends Controller
         $tutors = Tutor::when($search, function ($query) use ($search) {
             return $query->where('name', 'like', '%' . $search . '%');
         })
-        ->orderBy('updated_at', 'desc')
-        ->orderBy('created_at', 'desc')
-        ->get(); 
+            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return response()->json([
             'message' => 'Tutors retrieved successfully.',
