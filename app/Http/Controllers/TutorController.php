@@ -375,7 +375,7 @@ class TutorController extends Controller
     {
         $validatedData = $request->validated();
 
-        //from url query
+        // From URL query
         $tutor = $validatedData['tutor'] ?? '';
         $subject = $validatedData['subject'] ?? '';
 
@@ -383,17 +383,36 @@ class TutorController extends Controller
         $subjectNames = $searchedSubject->pluck('name')->toArray();
 
         $tutorIds = Tutor::whereHas('subjects', function ($query) use ($subjectNames) {
-            $query->whereIn('subjects.name', $subjectNames); 
-        })->pluck('id')->toArray(); 
+            $query->whereIn('subjects.name', $subjectNames);
+        })->pluck('id')->toArray();
 
         $tutors = Tutor::search($tutor)
             ->whereIn('id', $tutorIds)
             ->whereIn('approval_status', ['Accepted'])
             ->whereNotIn('offense_status', ['Banned'])
             ->orderBy('created_at', 'desc')
-            ->paginate(3);
-            
-        $tutors->load('subjects');
+            ->paginate(5);
+
+        if ($tutors->isEmpty()) {
+            return response()->json($tutors);
+        }
+
+        $tutors->load('subjects:id,name,abbreviation', 'ratings:id,tutor_id,rate');
+
+        $tutors->transform(function ($tutor) {
+            return [
+                'id' => $tutor->id,
+                'tutor_name' => "{$tutor->first_name} {$tutor->last_name}",
+                'profile_image' => $tutor->profile_image,
+                'tutor_subjects' => $tutor->subjects->map(function ($subject) {
+                    return [
+                        'name' => $subject->name,
+                        'abbreviation' => $subject->abbreviation,
+                    ];
+                }),
+                'tutor_rating' => $tutor->ratings->avg('rate'),
+            ];
+        });
 
         return response()->json($tutors);
     }
