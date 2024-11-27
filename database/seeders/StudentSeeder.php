@@ -20,7 +20,7 @@ class StudentSeeder extends Seeder
                 'user_type_id' => 1,
                 'email' => 'student@gmail.com',
                 'email_verified_at' => now(), // Mark as verified
-                'password' => Hash::make('password123'), // Predefined password
+                'password' => Hash::make('password123'), 
                 'remember_token' => null,
             ])->id,
             'first_name' => 'Student',

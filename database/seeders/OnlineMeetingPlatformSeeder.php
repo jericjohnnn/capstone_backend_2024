@@ -15,5 +15,6 @@ class OnlineMeetingPlatformSeeder extends Seeder
     {
         OnlineMeetingPlatform::create(['name' => 'Zoom']);
         OnlineMeetingPlatform::create(['name' => 'Google Meet']);
+        OnlineMeetingPlatform::create(['name' => 'Skype']);
     }
 }
