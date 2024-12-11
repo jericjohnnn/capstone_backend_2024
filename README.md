@@ -13,6 +13,7 @@
 
 - [Laravel](https://laravel.com/) - Backend framework
 - [Laravel Sanctum](https://laravel.com/docs/sanctum) - API authentication
+- [Laravel Scout](https://laravel.com/docs/11.x/scout) - Backend search
 
 ### To Be Implemented
 
