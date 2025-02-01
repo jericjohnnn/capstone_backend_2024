@@ -47,11 +47,18 @@ class TutorController extends Controller
     {
         $tutors = Tutor::where('approval_status', 'Accepted')
             ->whereNot('offense_status', 'Banned')
+            ->withCount('schools')
+            ->withCount('certificates')
             ->with('subjects:id,name,abbreviation', 'ratings:id,tutor_id,rate')
+            ->orderByDesc(function ($query) {
+                $query->selectRaw('AVG(rate) * COUNT(ratings.id) as weighted_rating')
+                    ->from('ratings')
+                    ->whereColumn('ratings.tutor_id', 'tutors.id');
+            })
+            ->orderByDesc('schools_count')
+            ->orderByDesc('certificates_count')
             ->paginate(5);
 
-        // ignore lang ning red sa "through" kay wa pako kita
-        // sa extension nga modetect na siya, kay bag o na nga feature sa laravel
         $tutors->transform(function ($tutor) {
             return [
                 'id' => $tutor->id,
@@ -80,8 +87,6 @@ class TutorController extends Controller
             ->with('subjects:id,name,abbreviation', 'ratings:id,tutor_id,rate')
             ->paginate(15);
 
-        // ignore lang ning red sa "through" kay wa pako kita
-        // sa extension nga modetect na siya, kay bag o na nga feature sa laravel
         $tutors->transform(function ($tutor) {
             return [
                 'id' => $tutor->id,
