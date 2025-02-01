@@ -24,6 +24,8 @@ class Booking extends Model
         'status' => 'string'
     ];
 
+    protected $appends = ['class_link'];
+
     public function tutor()
     {
         return $this->belongsTo(Tutor::class);
@@ -38,5 +40,22 @@ class Booking extends Model
     {
         return $this->hasMany(BookingMessage::class);
     }
-     
+
+    public function getClassLinkAttribute()
+    {
+        if (!$this->tutor) {
+            return null;
+        }
+
+        switch ($this->online_meeting_platform) {
+            case 'Google Meet':
+                return $this->tutor->gmeet_link;
+            case 'Zoom':
+                return $this->tutor->zoom_link;
+            case 'Skype':
+                return $this->tutor->skype_link;
+            default:
+                return null;
+        }
+    }
 }

@@ -425,7 +425,11 @@ class TutorController extends Controller
     public function showBookRequestDetails($book_id)
     {
         $bookDetails = Booking::where('id', $book_id)
-            ->with('student', 'messages.dates')
+            ->with([
+                'student',
+                'messages.dates',
+                'tutor:id,gmeet_link,zoom_link,skype_link'
+            ])
             ->first();
 
         return response()->json([
