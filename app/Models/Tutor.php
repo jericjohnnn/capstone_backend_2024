@@ -81,6 +81,11 @@ class Tutor extends Model
         return $this->hasMany(TutorCertificate::class);
     }
 
+    public function credentials()
+    {
+        return $this->hasMany(TutorCredential::class);
+    }
+
     public function subjects()
     {
         return $this->belongsToMany(Subject::class, 'tutor_subjects');

@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/edit-details', [TutorController::class, 'editPersonalDetails']);
     Route::post('/add-school', [TutorController::class, 'createSchool']);
     Route::post('/add-certificate', [TutorController::class, 'createCertificate']);
+    Route::post('/add-credential', [TutorController::class, 'createCredential']);
     Route::put('/edit-certificate/{certificate_id}', [TutorController::class, 'editCertificate']);
     Route::put('/edit-school/{school_id}', [TutorController::class, 'editSchool']);
     Route::put('/edit-subjects', [TutorController::class, 'editSubjects']);
@@ -29,5 +30,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::delete('/delete-school/{school_id}', [TutorController::class, 'deleteSchool']);
     Route::delete('/delete-certificate/{certificate_id}', [TutorController::class, 'deleteCertificate']);
+    Route::delete('/delete-credential/{credential_id}', [TutorController::class, 'deleteCredential']);
     Route::delete('/delete-tutor-account', [TutorController::class, 'deleteTutorAccount']);
 });

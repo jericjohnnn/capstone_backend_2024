@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ApprovalStatusRequest;
 use App\Http\Requests\Tutor\CertificateRequest;
+use App\Http\Requests\Tutor\CredentialsRequest;
 use App\Http\Requests\Tutor\EditPersonalDetailsRequest;
 use App\Http\Requests\Tutor\SchoolsRequest;
 use App\Http\Requests\Tutor\EditSubjectsRequest;
@@ -18,6 +19,7 @@ use App\Models\Rating;
 use App\Models\Subject;
 use App\Models\Tutor;
 use App\Models\TutorCertificate;
+use App\Models\TutorCredential;
 use App\Models\TutorSchool;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -126,7 +128,7 @@ class TutorController extends Controller
         $tutorId = $user->tutor->id;
 
         $tutor = Tutor::where('id', $tutorId)
-            ->with('workDays', 'schools', 'certificates', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
+            ->with('workDays', 'schools', 'certificates', 'credentials','subjects', 'ratings.student:id,first_name,last_name,profile_image')
             ->first();
 
         return response()->json([
@@ -284,6 +286,46 @@ class TutorController extends Controller
         ]);
     }
 
+    public function createCredential(CredentialsRequest $request)
+    {
+        $validatedData = $request->validated();
+
+        $user = Auth::user();
+        $tutor = $user->tutor;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('credentials', 'public');
+            $validatedData['image'] = asset('storage/' . $imagePath);
+        }
+
+        $credential = $tutor->credentials()->create($validatedData);
+
+        return response()->json([
+            'message' => 'Credential created successfully.',
+            'credential' => $credential,
+        ]);
+    }
+
+    public function deleteCredential($credential_id)
+    {
+        $user = Auth::user();
+        $tutor = $user->tutor;
+
+        $credential = TutorCredential::where('id', $credential_id)->where('tutor_id', $tutor->id)->first();
+
+        if (!$credential) {
+            return response()->json([
+                'message' => 'Credential not found for this tutor.'
+            ], 404);
+        }
+
+        $credential->delete();
+
+        return response()->json([
+            'message' => 'Certificate deleted successfully.',
+            'credential' => $credential,
+        ]);
+    }
 
     public function createCertificate(CertificateRequest $request)
     {
