@@ -42,7 +42,7 @@ class TutorController extends Controller
             $tutor->subjects()->syncWithoutDetaching($validatedDataWithUserId['subjects']);
         }
 
-        return $tutor->load(['subjects', 'certificates', 'schools', 'ratings.student:id,first_name,last_name,profile_image', 'workDays']);
+        return $tutor->load(['subjects', 'certificates', 'credentials', 'schools', 'ratings.student:id,first_name,last_name,profile_image', 'workDays']);
     }
 
     public function showTutors()
@@ -128,7 +128,7 @@ class TutorController extends Controller
         $tutorId = $user->tutor->id;
 
         $tutor = Tutor::where('id', $tutorId)
-            ->with('workDays', 'schools', 'certificates', 'credentials','subjects', 'ratings.student:id,first_name,last_name,profile_image')
+            ->with('workDays', 'schools', 'certificates', 'credentials', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
             ->first();
 
         return response()->json([
@@ -305,6 +305,28 @@ class TutorController extends Controller
             'credential' => $credential,
         ]);
     }
+
+    //for multiple images for register
+    // public function createCredential(CredentialsRequest $request)
+    // {
+    //     $validatedData = $request->validated();
+    //     $user = Auth::user();
+    //     $tutor = $user->tutor;
+
+    //     $credentials = [];
+
+    //     if ($request->hasFile('images')) {
+    //         foreach ($request->file('images') as $image) {
+    //             $imagePath = $image->store('credentials', 'public');
+    //             $validatedData['images'] = asset('storage/' . $imagePath);
+    //             $credentials[] = $tutor->credentials()->create(['image' => $validatedData['images']]);
+    //         }
+    //     }
+    //     return response()->json([
+    //         'message' => 'Credentials created successfully.',
+    //         'credentials' => $credentials[0],
+    //     ]);
+    // }
 
     public function deleteCredential($credential_id)
     {
