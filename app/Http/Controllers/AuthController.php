@@ -86,6 +86,11 @@ class AuthController extends Controller
             $userFullName = "{$tutor->first_name} {$tutor->last_name}";
             $userType = "Tutor";
             $userData = $tutor;
+            if($tutor->approval_status === 'Rejected'){
+                return response()->json([
+                    'message' => 'Your account is unapproved. You can be interviewd again after 30 days.',
+                ], 401);
+            }
         }
 
         return response()->json([
