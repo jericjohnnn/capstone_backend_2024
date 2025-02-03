@@ -34,6 +34,8 @@ class RegisterUserRequest extends FormRequest
             'grade_year' => 'string|max:255',
             'subjects' => 'nullable|array',
             'subjects.*' => 'integer',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'school_id_number' => 'string|max:255',
             'course' => 'in:BSED,BEED,BSIT,BSHM,BSENTREP',
             'year' => 'in:1,2,3,4',

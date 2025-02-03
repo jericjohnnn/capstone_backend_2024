@@ -34,11 +34,16 @@ class TutorController extends Controller
     {
         $tutor = Tutor::create($validatedDataWithUserId);
 
+        if (!empty($validatedDataWithUserId['images'])) {
+            foreach ($validatedDataWithUserId['images'] as $image) {
+                $imagePath = $image->store('credentials', 'public');
+                $tutor->credentials()->create(['image' => asset('storage/' . $imagePath)]);
+            }
+        }
 
         $tutor->workDays()->create([]);
 
         if (isset($validatedDataWithUserId['subjects'])) {
-            // Use syncWithoutDetaching to add the subjects
             $tutor->subjects()->syncWithoutDetaching($validatedDataWithUserId['subjects']);
         }
 
@@ -305,28 +310,6 @@ class TutorController extends Controller
             'credential' => $credential,
         ]);
     }
-
-    //for multiple images for register
-    // public function createCredential(CredentialsRequest $request)
-    // {
-    //     $validatedData = $request->validated();
-    //     $user = Auth::user();
-    //     $tutor = $user->tutor;
-
-    //     $credentials = [];
-
-    //     if ($request->hasFile('images')) {
-    //         foreach ($request->file('images') as $image) {
-    //             $imagePath = $image->store('credentials', 'public');
-    //             $validatedData['images'] = asset('storage/' . $imagePath);
-    //             $credentials[] = $tutor->credentials()->create(['image' => $validatedData['images']]);
-    //         }
-    //     }
-    //     return response()->json([
-    //         'message' => 'Credentials created successfully.',
-    //         'credentials' => $credentials[0],
-    //     ]);
-    // }
 
     public function deleteCredential($credential_id)
     {
