@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Subject;
 use App\Models\Tutor;
 use App\Models\TutorCertificate;
+use App\Models\TutorCredential;
 use App\Models\TutorSchool;
 use App\Models\TutorWorkDay;
 use App\Models\User;
@@ -73,6 +74,10 @@ class TutorSeeder extends Seeder
             'end_date' => '2020-05-30'
         ]);
 
+        TutorCredential::factory(3)->create([
+            'tutor_id' => $tutorAccount->id,
+        ]);
+
         $tutorAccount->workDays()->create([]);
 
         $subjectIds = Subject::inRandomOrder()->take(rand(1, 3))->pluck('id');
@@ -93,6 +98,10 @@ class TutorSeeder extends Seeder
 
             // Create work days for each tutor
             TutorWorkDay::factory()->create([
+                'tutor_id' => $tutor->id
+            ]);
+
+            TutorCredential::factory(3)->create([
                 'tutor_id' => $tutor->id
             ]);
 
