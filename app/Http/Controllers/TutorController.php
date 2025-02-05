@@ -530,6 +530,7 @@ class TutorController extends Controller
         $tutors = Tutor::when($search, function ($query) use ($search) {
             return $query->where('name', 'like', '%' . $search . '%');
         })
+            ->with('credentials')
             ->orderBy('updated_at', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
