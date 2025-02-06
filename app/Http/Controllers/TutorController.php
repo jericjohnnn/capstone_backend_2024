@@ -62,8 +62,8 @@ class TutorController extends Controller
                     ->from('ratings')
                     ->whereColumn('ratings.tutor_id', 'tutors.id');
             })
-            ->orderByDesc('schools_count')
-            ->orderByDesc('certificates_count')
+            // ->orderByDesc('schools_count')
+            // ->orderByDesc('certificates_count')
             ->paginate(5);
 
         $tutors->transform(function ($tutor) {
