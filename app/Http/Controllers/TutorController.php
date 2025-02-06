@@ -57,13 +57,11 @@ class TutorController extends Controller
             ->withCount('schools')
             ->withCount('certificates')
             ->with('subjects:id,name,abbreviation', 'ratings:id,tutor_id,rate')
-            ->orderByDesc(function ($query) {
-                $query->selectRaw('AVG(rate) * COUNT(ratings.id) as weighted_rating')
-                    ->from('ratings')
-                    ->whereColumn('ratings.tutor_id', 'tutors.id');
-            })
-            // ->orderByDesc('schools_count')
-            // ->orderByDesc('certificates_count')
+            ->orderByRaw('(SELECT COALESCE(AVG(rate) * COUNT(ratings.id), 0)
+                           FROM ratings
+                           WHERE ratings.tutor_id = tutors.id) DESC')
+            ->orderByDesc('schools_count')
+            ->orderByDesc('certificates_count')
             ->paginate(5);
 
         $tutors->transform(function ($tutor) {
