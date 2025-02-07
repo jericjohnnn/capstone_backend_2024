@@ -29,7 +29,7 @@ class RegisterUserRequest extends FormRequest
             'last_name' => 'required|string|max:255', //required
             'address' => 'nullable|string|max:255',
             'birthdate' => 'nullable|date',
-            'gender' => 'in:male,female,other',
+            'gender' => 'in:Male,Female,Other',
             'contact_number' => 'required|string',
             'grade_year' => 'string|max:255',
             'subjects' => 'nullable|array',
