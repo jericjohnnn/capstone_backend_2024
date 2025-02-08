@@ -8,7 +8,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/tutor-detail/{tutor_id}', [TutorController::class, 'showTutorDetail']);
     Route::get('/tutor-schedules/{tutor_id}', [TutorController::class, 'showTutorSchedules']);
     Route::get('/tutors', [TutorController::class, 'showTutors']);
-    Route::get('/tutors-mobile', [TutorController::class, 'showTutorsMobile']);
     Route::get('/tutor-info', [TutorController::class, 'getTutorDetails']);
     Route::get('/search-tutor', [TutorController::class, 'searchTutors']);
     //

@@ -50,8 +50,9 @@ class TutorController extends Controller
         return $tutor->load(['subjects', 'certificates', 'credentials', 'schools', 'ratings.student:id,first_name,last_name,profile_image', 'workDays']);
     }
 
-    public function showTutors()
+    public function showTutors(Request $request)
     {
+        $number_of_tutors = $request->query('number_of_tutors', 5);
         $tutors = Tutor::where('approval_status', 'Accepted')
             ->whereNot('offense_status', 'Banned')
             ->withCount('schools')
@@ -62,35 +63,7 @@ class TutorController extends Controller
                            WHERE ratings.tutor_id = tutors.id) DESC')
             ->orderByDesc('schools_count')
             ->orderByDesc('certificates_count')
-            ->paginate(5);
-
-        $tutors->transform(function ($tutor) {
-            return [
-                'id' => $tutor->id,
-                'tutor_name' => "{$tutor->first_name} {$tutor->last_name}",
-                'profile_image' => $tutor->profile_image,
-                'tutor_subjects' => $tutor->subjects->map(function ($subject) {
-                    return [
-                        'name' => $subject->name,
-                        'abbreviation' => $subject->abbreviation
-                    ];
-                }),
-                'tutor_rating' => $tutor->ratings->avg('rate'),
-            ];
-        });
-
-        return response()->json([
-            'message' => 'Tutors retrieved successfully.',
-            'tutor_previews' => $tutors,
-        ]);
-    }
-
-    public function showTutorsMobile()
-    {
-        $tutors = Tutor::where('approval_status', 'Accepted')
-            ->whereNot('offense_status', 'Banned')
-            ->with('subjects:id,name,abbreviation', 'ratings:id,tutor_id,rate')
-            ->paginate(15);
+            ->paginate($number_of_tutors);
 
         $tutors->transform(function ($tutor) {
             return [
@@ -171,7 +144,6 @@ class TutorController extends Controller
         ]);
     }
 
-
     public function editSubjects(EditSubjectsRequest $request)
     {
         $validatedData = $request->validated();
@@ -187,7 +159,6 @@ class TutorController extends Controller
             'tutor' => $tutor,
         ]);
     }
-
 
     public function editPersonalDetails(EditPersonalDetailsRequest $request)
     {
@@ -209,8 +180,6 @@ class TutorController extends Controller
             'tutor' => $tutor,
         ]);
     }
-
-
 
     public function editWorkDays(EditWorkDaysRequest $request)
     {
@@ -509,17 +478,6 @@ class TutorController extends Controller
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     //ADMIN METHODS INSERT HERE
     public function showAllTutors(Request $request)
     {
@@ -538,8 +496,6 @@ class TutorController extends Controller
             'all_tutors' => $tutors,
         ]);
     }
-
-
 
     public function showAcceptedTutors()
     {
