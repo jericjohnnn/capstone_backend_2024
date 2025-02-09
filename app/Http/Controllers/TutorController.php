@@ -409,7 +409,7 @@ class TutorController extends Controller
             ->whereIn('id', $tutorIds)
             ->whereIn('approval_status', ['Accepted'])
             ->whereNotIn('offense_status', ['Banned'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->paginate(5);
 
         if ($tutors->isEmpty()) {
