@@ -89,7 +89,7 @@ class TutorController extends Controller
     public function showTutorDetail($tutor_id)
     {
         $tutor = Tutor::where('id', $tutor_id)
-            ->with('workDays', 'schools', 'certificates', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
+            ->with('workDays', 'schools', 'certificates', 'credentials', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
             ->first();
 
         return response()->json([
