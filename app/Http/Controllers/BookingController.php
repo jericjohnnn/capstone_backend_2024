@@ -18,6 +18,26 @@ class BookingController extends Controller
     public function createBooking(BookingRequest $request)
     {
         $validatedData = $request->validated();
+        $user = Auth::user();
+        $studentId = $user->student->id;
+
+        // Check for schedule conflicts for all proposed dates
+        foreach ($validatedData['selected_date_times'] as $dateTime) {
+            if (BookingDate::hasConflict(
+                $dateTime['start'],
+                $dateTime['end'],
+                $validatedData['tutor_id'],
+                $studentId
+            )) {
+                return response()->json([
+                    'message' => 'Schedule conflict detected. Please select different time slots.',
+                    'conflicting_datetime' => [
+                        'start' => $dateTime['start'],
+                        'end' => $dateTime['end']
+                    ]
+                ], 422);
+            }
+        }
 
         $booking = Booking::create($validatedData);
 
@@ -43,6 +63,35 @@ class BookingController extends Controller
     public function updateStudentBookRequestStatus(Request $request, $book_id)
     {
         $booking = Booking::findOrFail($book_id);
+
+        // Only check for conflicts if the status is being updated to 'Ongoing'
+        if ($request['status'] === 'Ongoing') {
+            $latestMessage = $booking->messages()->latest()->first();
+
+            if (!$latestMessage) {
+                return response()->json([
+                    'message' => 'No booking dates found.',
+                ], 422);
+            }
+
+            // Get all existing ongoing bookings' dates for both tutor and student
+            foreach ($latestMessage->dates as $newDate) {
+                if (BookingDate::hasConflict(
+                    $newDate->start_time,
+                    $newDate->end_time,
+                    $booking->tutor_id,
+                    $booking->student_id
+                )) {
+                    return response()->json([
+                        'message' => 'Cannot update status. Schedule conflict detected.',
+                        'conflicting_datetime' => [
+                            'start' => $newDate->start_time,
+                            'end' => $newDate->end_time
+                        ]
+                    ], 422);
+                }
+            }
+        }
 
         $booking->status = $request['status'];
         $booking->save();
@@ -159,8 +208,25 @@ class BookingController extends Controller
     {
         $validatedData = $request->validated();
         $user = Auth::user();
-
         $booking = Booking::findOrFail($booking_id);
+
+        // Check for schedule conflicts for all proposed dates
+        foreach ($validatedData['selected_date_times'] as $dateTime) {
+            if (BookingDate::hasConflict(
+                $dateTime['start'],
+                $dateTime['end'],
+                $booking->tutor_id,
+                $booking->student_id
+            )) {
+                return response()->json([
+                    'message' => 'Schedule conflict detected. Please select different time slots.',
+                    'conflicting_datetime' => [
+                        'start' => $dateTime['start'],
+                        'end' => $dateTime['end']
+                    ]
+                ], 422);
+            }
+        }
 
         $bookingMessage = BookingMessage::create([
             'booking_id' => $booking->id,

@@ -89,7 +89,7 @@ class TutorController extends Controller
     public function showTutorDetail($tutor_id)
     {
         $tutor = Tutor::where('id', $tutor_id)
-            ->with('workDays', 'schools', 'certificates', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
+            ->with('workDays', 'schools', 'certificates', 'credentials', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
             ->first();
 
         return response()->json([
@@ -409,7 +409,7 @@ class TutorController extends Controller
             ->whereIn('id', $tutorIds)
             ->whereIn('approval_status', ['Accepted'])
             ->whereNotIn('offense_status', ['Banned'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->paginate(5);
 
         if ($tutors->isEmpty()) {
