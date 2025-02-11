@@ -12,6 +12,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/sent-tutor-requests', [StudentController::class, 'showSentTutorRequests']);
     Route::get('/student-book-details/{book_id}', [StudentController::class, 'showStudentBookRequestDetails']);
+
+    Route::post('/admin/edit-student-details/{student_id}', [StudentController::class, 'adminEditPersonalDetails']);
 });
 
 

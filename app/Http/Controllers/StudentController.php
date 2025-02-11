@@ -140,4 +140,25 @@ class StudentController extends Controller
             'all_students' => $students,
         ]);
     }
+
+    public function adminEditPersonalDetails(EditStudentDetailsRequest $request, $student_id)
+    {
+        $validatedData = $request->validated();
+
+        $student = Student::find($student_id);
+
+        $imagePath = $request->file('profile_image')->getPathname();
+        $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+        if ($imgurUrl) {
+            $validatedData['profile_image'] = $imgurUrl;
+        }
+
+        $student->update($validatedData);
+
+        return response()->json([
+            'message' => 'Student updated successfully.',
+            'student' => $student,
+        ]);
+    }
 }
