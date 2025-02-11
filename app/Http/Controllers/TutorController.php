@@ -22,6 +22,7 @@ use App\Models\TutorCertificate;
 use App\Models\TutorCredential;
 use App\Models\TutorSchool;
 use App\Models\User;
+use App\Services\ImgurService;
 use Illuminate\Http\Request;
 use App\Http\Requests\Tutor\RateRequest;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,13 @@ use Illuminate\Support\Facades\Storage;
 
 class TutorController extends Controller
 {
+    protected $imgurService;
+
+    public function __construct(ImgurService $imgurService)
+    {
+        $this->imgurService = $imgurService;
+    }
+
     //NORMAL USER METHODS INSERT HERE
     public function createTutor($validatedDataWithUserId)
     {
@@ -36,8 +44,12 @@ class TutorController extends Controller
 
         if (!empty($validatedDataWithUserId['images'])) {
             foreach ($validatedDataWithUserId['images'] as $image) {
-                $imagePath = $image->store('credentials', 'public');
-                $tutor->credentials()->create(['image' => asset('storage/' . $imagePath)]);
+                $imagePath = $image->getPathname();
+                $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+                if ($imgurUrl) {
+                    $tutor->credentials()->create(['image' => $imgurUrl]);
+                }
             }
         }
 
@@ -167,9 +179,11 @@ class TutorController extends Controller
         $user = Auth::user();
         $tutor = $user->tutor;
 
-        if ($request->hasFile('profile_image')) {
-            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
-            $validatedData['profile_image'] = asset('storage/' . $imagePath);
+        $imagePath = $request->file('profile_image')->getPathname();
+        $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+        if ($imgurUrl) {
+            $validatedData['profile_image'] = $imgurUrl;
         }
 
         $tutor->update($validatedData);
@@ -265,9 +279,11 @@ class TutorController extends Controller
         $user = Auth::user();
         $tutor = $user->tutor;
 
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('credentials', 'public');
-            $validatedData['image'] = asset('storage/' . $imagePath);
+        $imagePath = $request->file('image')->getPathname();
+        $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+        if ($imgurUrl) {
+            $validatedData['image'] = $imgurUrl;
         }
 
         $credential = $tutor->credentials()->create($validatedData);
