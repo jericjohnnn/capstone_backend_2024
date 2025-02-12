@@ -17,7 +17,7 @@ class StudentController extends Controller
 {
     protected $imgurService;
 
-    public function __construct(ImgurService $imgurService)
+    public function __construct(?ImgurService $imgurService = null)
     {
         $this->imgurService = $imgurService;
     }
