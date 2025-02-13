@@ -10,7 +10,11 @@ use App\Models\Student;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use App\Mail\SendOtpMail;
 
 class AuthController extends Controller
 {
@@ -31,7 +35,7 @@ class AuthController extends Controller
         $userType = null;
         $userData = null;
 
-        if ($validatedData['user_type_id'] ==  $student) {
+        if ($validatedData['user_type_id'] == $student) {
             $studentData = (new StudentController)->createStudent($validatedDataWithUserId);
             $userType = "Student";
             $userData = $studentData;
@@ -81,12 +85,12 @@ class AuthController extends Controller
         }
         if ($user->user_type_id === 2) {
             $tutor = Tutor::where('user_id', $user->id)
-            ->with('workDays', 'schools', 'certificates', 'credentials', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
-            ->first();
+                ->with('workDays', 'schools', 'certificates', 'credentials', 'subjects', 'ratings.student:id,first_name,last_name,profile_image')
+                ->first();
             $userFullName = "{$tutor->first_name} {$tutor->last_name}";
             $userType = "Tutor";
             $userData = $tutor;
-            if($tutor->approval_status === 'Rejected'){
+            if ($tutor->approval_status === 'Rejected') {
                 return response()->json([
                     'message' => 'Your account is unapproved. You can be interviewd again after 30 days.',
                 ], 401);
@@ -133,5 +137,67 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        $otp = rand(100000, 999999);
+        $expiresAt = now()->addMinutes(2);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['otp' => $otp, 'expires_at' => $expiresAt, 'created_at' => now()]
+        );
+
+        Mail::to($user->email)->send(new SendOtpMail($otp));
+
+        return response()->json(['message' => 'OTP sent to your email']);
+    }
+
+    public function verifyOtp(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required',
+        ]);
+
+        $reset = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('otp', $request->otp)
+            ->first();
+
+        if (!$reset) {
+            return response()->json(['error' => 'Invalid OTP'], 400);
+        }
+
+        if (now()->greaterThan($reset->expires_at)) {
+            return response()->json(['error' => 'OTP has expired. Please request a new one.'], 400);
+        }
+
+        return response()->json(['message' => 'OTP verified successfully']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        // Reset the user's password
+        $user = User::where('email', $request->email)->first();
+        $user->update(['password' => bcrypt($request->password)]);
+
+        // Delete OTP record after reset
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Password reset successful']);
     }
 }

@@ -8,12 +8,20 @@ use App\Http\Requests\Tutor\EditPersonalDetailsRequest;
 use App\Models\Booking;
 use App\Models\Student;
 use App\Models\User;
+use App\Services\ImgurService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class StudentController extends Controller
 {
+    protected $imgurService;
+
+    public function __construct(?ImgurService $imgurService = null)
+    {
+        $this->imgurService = $imgurService;
+    }
+
     //NORMAL USER METHODS INSERT HERE
     public function createStudent($validatedDataWithUserId)
     {
@@ -50,9 +58,11 @@ class StudentController extends Controller
         $user = Auth::user();
         $student = $user->student;
 
-        if ($request->hasFile('profile_image')) {
-            $imagePath = $request->file('profile_image')->store('profile_images', 'public');
-            $validatedData['profile_image'] = asset('storage/' . $imagePath);
+        $imagePath = $request->file('profile_image')->getPathname();
+        $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+        if ($imgurUrl) {
+            $validatedData['profile_image'] = $imgurUrl;
         }
 
         $student->update($validatedData);
@@ -67,42 +77,42 @@ class StudentController extends Controller
     public function showSentTutorRequests(Request $request)
     {
         $tab = $request->query('tab', 'all');
-    
+
         $user = Auth::user();
         $student = $user->student;
-    
+
         if ($tab === 'all') {
             $StudentRequests = Booking::with('tutor')
                 ->where('student_id', $student->id)
                 ->whereNot('status', 'Ongoing')
                 ->whereNot('status', 'Canceled')
-                ->orderBy('updated_at', 'desc') 
-                ->orderBy('created_at', 'desc') 
+                ->orderBy('updated_at', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->paginate(6);
         }
         if ($tab === 'pending') {
             $StudentRequests = Booking::with('tutor')
                 ->where('student_id', $student->id)
                 ->where('status', 'Pending')
-                ->orderBy('updated_at', 'desc') 
-                ->orderBy('created_at', 'desc') 
+                ->orderBy('updated_at', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->paginate(6);
         }
         if ($tab === 'completed') {
             $StudentRequests = Booking::with('tutor')
                 ->where('student_id', $student->id)
                 ->where('status', 'Completed')
-                ->orderBy('updated_at', 'desc') 
-                ->orderBy('created_at', 'desc') 
+                ->orderBy('updated_at', 'desc')
+                ->orderBy('created_at', 'desc')
                 ->paginate(6);
         }
-    
+
         return response()->json([
             'message' => 'Accepted tutors retrieved successfully.',
             'sent_requests' => $StudentRequests,
         ]);
     }
-    
+
 
     public function showStudentBookRequestDetails($book_id)
     {
@@ -128,6 +138,27 @@ class StudentController extends Controller
         return response()->json([
             'message' => 'Students retrieved successfully.',
             'all_students' => $students,
+        ]);
+    }
+
+    public function adminEditPersonalDetails(EditStudentDetailsRequest $request, $student_id)
+    {
+        $validatedData = $request->validated();
+
+        $student = Student::find($student_id);
+
+        $imagePath = $request->file('profile_image')->getPathname();
+        $imgurUrl = $this->imgurService->uploadImage($imagePath);
+
+        if ($imgurUrl) {
+            $validatedData['profile_image'] = $imgurUrl;
+        }
+
+        $student->update($validatedData);
+
+        return response()->json([
+            'message' => 'Student updated successfully.',
+            'student' => $student,
         ]);
     }
 }
