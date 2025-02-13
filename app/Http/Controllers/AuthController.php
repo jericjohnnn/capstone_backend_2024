@@ -139,7 +139,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
-    // ✅ Send Password Reset Email
+
     public function forgotPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -162,37 +162,42 @@ class AuthController extends Controller
         return response()->json(['message' => 'OTP sent to your email']);
     }
 
-    // ✅ Reset Password
-    // public function resetPassword(Request $request)
-    // {
-    //     $request->validate([
-    //         'email' => 'required|email',
-    //         'otp' => 'required',
-    //         'password' => 'required|min:6|confirmed',
-    //     ]);
+    public function verifyOtp(Request $request){
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required',
+        ]);
 
-    //     // Find the OTP record
-    //     $reset = DB::table('password_reset_tokens')
-    //         ->where('email', $request->email)
-    //         ->where('otp', $request->otp)
-    //         ->first();
+        $reset = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('otp', $request->otp)
+            ->first();
 
-    //     if (!$reset) {
-    //         return response()->json(['error' => 'Invalid OTP'], 400);
-    //     }
+        if (!$reset) {
+            return response()->json(['error' => 'Invalid OTP'], 400);
+        }
 
-    //     // Check if OTP has expired
-    //     if (now()->greaterThan($reset->expires_at)) {
-    //         return response()->json(['error' => 'OTP has expired. Please request a new one.'], 400);
-    //     }
+        if (now()->greaterThan($reset->expires_at)) {
+            return response()->json(['error' => 'OTP has expired. Please request a new one.'], 400);
+        }
 
-    //     // Reset the user's password
-    //     $user = User::where('email', $request->email)->first();
-    //     $user->update(['password' => bcrypt($request->password)]);
+        return response()->json(['message' => 'OTP verified successfully']);
+    }
 
-    //     // Delete OTP record after reset
-    //     DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
 
-    //     return response()->json(['message' => 'Password reset successful']);
-    // }
+        // Reset the user's password
+        $user = User::where('email', $request->email)->first();
+        $user->update(['password' => bcrypt($request->password)]);
+
+        // Delete OTP record after reset
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        return response()->json(['message' => 'Password reset successful']);
+    }
 }
