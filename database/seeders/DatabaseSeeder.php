@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
                 TutorSeeder::class,
                 RatingSeeder::class,
                 ReportSeeder::class,
-                NotificationSeeder::class,
                 BookingSeeder::class,
             ]
         );

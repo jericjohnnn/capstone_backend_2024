@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OffenseStatusRequest;
-use App\Models\Notification;
 use App\Models\Student;
 use App\Models\Tutor;
 use App\Models\User;
@@ -18,8 +17,7 @@ class UserController extends Controller
 {
     $user = Auth::user();
 
-    // Get notifications by user_id
-    $notifications = Notification::where('user_id', $user->id)->get();
+    $notifications = $user->notifications;
 
     return response()->json([
         'message' => 'Notifications retrieved successfully.',
