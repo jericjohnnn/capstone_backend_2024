@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PendingBookAccepted;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Booking\BookingRequest;
 use App\Http\Requests\Booking\NegotiateBookingRequest;
@@ -10,6 +11,7 @@ use App\Models\BookingDate;
 use App\Models\BookingMessage;
 use App\Models\Student;
 use App\Models\Tutor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -64,10 +66,21 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($book_id);
 
+        $user = Auth::user();
+        $userToBeNotified = null;
+        if ($user->student) {
+            $tutor = Tutor::find($booking->tutor_id);
+            $userToBeNotified = User::find($tutor->user_id);
+            $user = $user->student;
+        } else if ($user->tutor) {
+            $student = Student::find($booking->student_id);
+            $userToBeNotified = User::find($student->user_id);
+            $user = $user->tutor;
+        }
+
         // Only check for conflicts if the status is being updated to 'Ongoing'
         if ($request['status'] === 'Ongoing') {
             $latestMessage = $booking->messages()->latest()->first();
-
             if (!$latestMessage) {
                 return response()->json([
                     'message' => 'No booking dates found.',
@@ -92,7 +105,7 @@ class BookingController extends Controller
                 }
             }
         }
-
+        PendingBookAccepted::dispatch($user, $userToBeNotified);
         $booking->status = $request['status'];
         $booking->save();
 
