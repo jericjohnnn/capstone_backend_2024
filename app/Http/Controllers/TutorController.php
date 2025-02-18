@@ -179,11 +179,12 @@ class TutorController extends Controller
         $user = Auth::user();
         $tutor = $user->tutor;
 
-        $imagePath = $request->file('profile_image')->getPathname();
-        $imgurUrl = $this->imgurService->uploadImage($imagePath);
-
-        if ($imgurUrl) {
-            $validatedData['profile_image'] = $imgurUrl;
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->getPathname();
+            $imgurUrl = $this->imgurService->uploadImage($imagePath);
+            if ($imgurUrl) {
+                $validatedData['profile_image'] = $imgurUrl;
+            }
         }
 
         $tutor->update($validatedData);

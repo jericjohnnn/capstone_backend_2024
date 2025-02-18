@@ -50,6 +50,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'User registered successfully!',
+            'user_id' => $user->id,
             'user_email' => $user->email,
             'user_full_name' => "{$validatedData['first_name']} {$validatedData['last_name']}",
             'user_type' => $userType,
@@ -99,6 +100,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Login successful!',
+            'user_id' => $user->id,
             'user_email' => $user->email,
             'user_full_name' => $userFullName,
             'user_type' => $userType,

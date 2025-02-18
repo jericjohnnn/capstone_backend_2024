@@ -58,11 +58,12 @@ class StudentController extends Controller
         $user = Auth::user();
         $student = $user->student;
 
-        $imagePath = $request->file('profile_image')->getPathname();
-        $imgurUrl = $this->imgurService->uploadImage($imagePath);
-
-        if ($imgurUrl) {
-            $validatedData['profile_image'] = $imgurUrl;
+        if($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->getPathname();
+            $imgurUrl = $this->imgurService->uploadImage($imagePath);
+            if ($imgurUrl) {
+                $validatedData['profile_image'] = $imgurUrl;
+            }
         }
 
         $student->update($validatedData);
