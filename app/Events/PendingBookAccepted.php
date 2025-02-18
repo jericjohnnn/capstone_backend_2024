@@ -34,7 +34,8 @@ class PendingBookAccepted implements ShouldBroadcast, ShouldQueue
 
     protected function storeNotification($message)
     {
-        $this->userToBeNotified->notify(new NotificationStore($message));
+        $notification = new NotificationStore($message);
+        $this->userToBeNotified->notify($notification);
     }
 
     /**
@@ -57,7 +58,11 @@ class PendingBookAccepted implements ShouldBroadcast, ShouldQueue
     public function broadcastWith(): array
     {
         return [
-            'message' => $this->message,
+            'id' => rand(1, 999),
+            'data' => [
+                'message' => $this->message,
+            ],
+            'created_at' => now()->setTimezone('UTC'),
         ];
     }
 }
